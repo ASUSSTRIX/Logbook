@@ -1,0 +1,46 @@
+package com.ust.project.onboarding.utils;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
+public class DateTimeUtils {
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_DATE;
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ISO_TIME;
+    private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
+
+    public static LocalDate parseDate(String dateStr) {
+        try {
+            return LocalDate.parse(dateStr, DATE_FORMATTER);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid date format. Expected format: YYYY-MM-DD", e);
+        }
+    }
+
+    public static LocalTime parseTime(String timeStr) {
+        try {
+            return LocalTime.parse(timeStr, TIME_FORMATTER);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid time format. Expected format: HH:MM:SS", e);
+        }
+    }
+
+    public static String formatDate(LocalDate date) {
+        return date != null ? date.format(DATE_FORMATTER) : null;
+    }
+
+    public static String formatTime(LocalTime time) {
+        return time != null ? time.format(TIME_FORMATTER) : null;
+    }
+
+    public static String formatDateTime(LocalDateTime dateTime) {
+        return dateTime != null ? dateTime.format(DATETIME_FORMATTER) : null;
+    }
+
+    // Prevent instantiation
+    private DateTimeUtils() {
+    }
+}
