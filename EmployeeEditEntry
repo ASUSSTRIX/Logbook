@@ -1,333 +1,129 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react"
 
 export default function EmployeeEditEntry() {
-  const navigate = useNavigate();
-  const canvasRef = useRef(null);
-
   // State for the visitor details (non-editable)
   const [visitorDetails, setVisitorDetails] = useState({
-    visitorType: "",
-    visitorId: "",
-    visitorName: "",
-    purposeOfVisit: "",
-    phoneNumber: "",
-    email: "",
-    date: "",
-    inTime: "",
-  });
+    visitorType: "Employee",
+    visitorId: "EMP12345",
+    visitorName: "John Doe",
+    purposeOfVisit: "Meeting",
+    phoneNumber: "1234567890",
+    email: "john.doe@example.com",
+    date: "2025-05-20",
+    inTime: "09:30",
+  })
 
   // State for the editable fields
   const [editableFields, setEditableFields] = useState({
     outTime: "",
     authorizedSignatory: "",
     addFacility: "",
-  });
+    eSignature: null,
+  })
 
   // State for validation errors
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [errors, setErrors] = useState({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitMessage, setSubmitMessage] = useState("")
 
   // Signature canvas state
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [signatureData, setSignatureData] = useState(null);
-
-  // Fetch visitor data on component mount
-  useEffect(() => {
-    const visitorId = localStorage.getItem("currentVisitorId");
-    if (visitorId) {
-      fetchVisitorData(visitorId);
-    } else {
-      setIsLoading(false);
-      setSubmitMessage("No visitor selected. Please create a new entry first.");
-    }
-
-    // Initialize canvas
-    if (canvasRef.current) {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-  }, []);
-
-  const fetchVisitorData = async (visitorId) => {
-    try {
-      const response = await fetch(`http://localhost:8080/api/${visitorId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch visitor data");
-      }
-
-      const result = await response.json();
-
-      if (result.success && result.data) {
-        const visitor = result.data;
-
-        // Format the date if needed
-        const formattedDate = visitor.date ? visitor.date : "";
-        
-        // Format the time if needed (assuming it comes as HH:MM:SS)
-        const formattedInTime = visitor.inTime ? visitor.inTime.substring(0, 5) : "";
-
-        // Set visitor details (non-editable fields)
-        setVisitorDetails({
-          visitorType: visitor.visitorType || "",
-          visitorId: visitor.visitorId || "",
-          visitorName: visitor.visitorName || "",
-          purposeOfVisit: visitor.purposeOfVisit || "",
-          phoneNumber: visitor.phoneNumber || "",
-          email: visitor.email || "",
-          date: formattedDate,
-          inTime: formattedInTime,
-        });
-
-        // Set facility if it exists
-        if (visitor.facility) {
-          setEditableFields((prev) => ({
-            ...prev,
-            addFacility: visitor.facility.toLowerCase(),
-          }));
-        }
-      } else {
-        setSubmitMessage("Could not load visitor data");
-      }
-    } catch (error) {
-      console.error("Error fetching visitor data:", error);
-      setSubmitMessage(`Error: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [isDrawing, setIsDrawing] = useState(false)
+  const [signatureData, setSignatureData] = useState(null)
 
   // Handle change for editable fields
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     setEditableFields((prev) => ({
       ...prev,
       [name]: value,
-    }));
+    }))
 
     if (errors[name]) {
       setErrors({
         ...errors,
         [name]: "",
-      });
+      })
     }
-  };
+  }
 
   // Validate form before submission
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors = {}
 
     if (!editableFields.outTime) {
-      newErrors.outTime = "Out Time is required";
+      newErrors.outTime = "Out Time is required"
     }
 
     if (!editableFields.authorizedSignatory) {
-      newErrors.authorizedSignatory = "Authorized Signatory is required";
+      newErrors.authorizedSignatory = "Authorized Signatory is required"
     }
 
     if (!editableFields.addFacility) {
-      newErrors.addFacility = "Facility is required";
+      newErrors.addFacility = "Facility is required"
     }
 
     if (!signatureData) {
-      newErrors.eSignature = "E-Signature is required";
+      newErrors.eSignature = "E-Signature is required"
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // Convert data URL to Blob
-  const dataURLtoBlob = (dataURL) => {
-    const arr = dataURL.split(",");
-    const mime = arr[0].match(/:(.*?);/)[1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-
-    return new Blob([u8arr], { type: mime });
-  };
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const visitorId = localStorage.getItem("currentVisitorId");
-
-    if (!visitorId) {
-      setSubmitMessage("No visitor selected for checkout");
-      return;
-    }
+  const handleSubmit = (e) => {
+    e.preventDefault()
 
     if (validateForm()) {
-      setIsSubmitting(true);
-      setSubmitMessage("");
+      setIsSubmitting(true)
+      setSubmitMessage("")
 
-      try {
-        // First, upload the signature
-        const signatureBlob = dataURLtoBlob(signatureData);
-        const signatureFormData = new FormData();
-        signatureFormData.append("signature", signatureBlob, "signature.png");
-
-        const signatureResponse = await fetch(
-          `http://localhost:8080/api/upload-signature/${visitorId}`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-            body: signatureFormData,
-          }
-        );
-
-        if (!signatureResponse.ok) {
-          throw new Error("Failed to upload signature");
-        }
-
-        // Then, update the visitor with checkout information
-        const checkoutResponse = await fetch(
-          `http://localhost:8080/api/${visitorId}/checkout`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-            body: JSON.stringify({
-              outTime: editableFields.outTime,
-              authorizedSignatory: editableFields.authorizedSignatory,
-              addFacility: editableFields.addFacility,
-            }),
-          }
-        );
-
-        if (!checkoutResponse.ok) {
-          throw new Error("Failed to update visitor checkout information");
-        }
-
-        const result = await checkoutResponse.json();
-
-        if (result.success) {
-          setSubmitMessage("Visitor checked out successfully!");
-          
-          // Clear the current visitor ID
-          localStorage.removeItem("currentVisitorId");
-          
-          // Reset form
-          setEditableFields({
-            outTime: "",
-            authorizedSignatory: "",
-            addFacility: "",
-          });
-          clearSignature();
-          
-          // Navigate back to the create page after a delay
-          setTimeout(() => {
-            navigate('/employee-process-management');
-          }, 2000);
-        } else {
-          throw new Error(result.message || "Failed to checkout visitor");
-        }
-      } catch (error) {
-        console.error("Error during checkout:", error);
-        setSubmitMessage(`Error: ${error.message}`);
-      } finally {
-        setIsSubmitting(false);
-      }
+      // Mock API call - replace with your actual API endpoint
+      setTimeout(() => {
+        setSubmitMessage("Entry updated successfully!")
+        setIsSubmitting(false)
+      }, 1000)
     }
-  };
+  }
 
   // Signature pad handlers
   const startDrawing = (e) => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    
-    // Get the correct position
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    setIsDrawing(true);
-  };
+    const canvas = e.target
+    const ctx = canvas.getContext("2d")
+    ctx.beginPath()
+    ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY)
+    setIsDrawing(true)
+  }
 
   const draw = (e) => {
-    if (!isDrawing) return;
-    
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    
-    // Get the correct position
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    ctx.lineWidth = 2;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = "black";
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
+    if (!isDrawing) return
+    const canvas = e.target
+    const ctx = canvas.getContext("2d")
+    ctx.lineWidth = 2
+    ctx.lineCap = "round"
+    ctx.strokeStyle = "black"
+    ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY)
+    ctx.stroke()
+  }
 
-  const stopDrawing = () => {
+  const stopDrawing = (e) => {
     if (isDrawing) {
-      setSignatureData(canvasRef.current.toDataURL());
-      setIsDrawing(false);
-      
-      // Clear the error if it exists
-      if (errors.eSignature) {
-        setErrors({
-          ...errors,
-          eSignature: "",
-        });
-      }
+      const canvas = e.target
+      setSignatureData(canvas.toDataURL())
+      setIsDrawing(false)
     }
-  };
+  }
 
   const clearSignature = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    setSignatureData(null);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-      </div>
-    );
+    const canvas = document.getElementById("signatureCanvas")
+    const ctx = canvas.getContext("2d")
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    setSignatureData(null)
   }
 
   return (
     <div className="flex flex-col items-center bg-gray-100 p-4">
       <div className="w-full max-w-7xl">
-        {submitMessage && (
-          <div
-            className={`mb-4 p-3 rounded ${
-              submitMessage.includes("Error")
-                ? "bg-red-100 text-red-700"
-                : "bg-green-100 text-green-700"
-            }`}
-          >
-            {submitMessage}
-          </div>
-        )}
-
         {/* Visitor Details Card */}
         <div className="mb-6 bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="p-3 border-b border-gray-200">
@@ -435,15 +231,13 @@ export default function EmployeeEditEntry() {
                   name="authorizedSignatory"
                   value={editableFields.authorizedSignatory}
                   onChange={handleChange}
-                  className={`w-full p-2 border rounded h-10 ${
-                    errors.authorizedSignatory ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full p-2 border rounded h-10 ${errors.authorizedSignatory ? 'border-red-500' : 'border-gray-300'}`}
                 />
                 {errors.authorizedSignatory && (
                   <p className="text-red-500 text-xs">{errors.authorizedSignatory}</p>
                 )}
               </div>
-
+              
               <div className="space-y-1">
                 <label className="block text-sm text-gray-700">
                   <span className="text-red-500">*</span>Out Time
@@ -453,15 +247,13 @@ export default function EmployeeEditEntry() {
                   name="outTime"
                   value={editableFields.outTime}
                   onChange={handleChange}
-                  className={`w-full p-2 border rounded h-10 ${
-                    errors.outTime ? "border-red-500" : "border-gray-300"
-                  }`}
+                  className={`w-full p-2 border rounded h-10 ${errors.outTime ? 'border-red-500' : 'border-gray-300'}`}
                 />
                 {errors.outTime && (
                   <p className="text-red-500 text-xs">{errors.outTime}</p>
                 )}
               </div>
-
+              
               <div className="space-y-1">
                 <label className="block text-sm text-gray-700">
                   <span className="text-red-500">*</span>Add Facility
@@ -470,13 +262,9 @@ export default function EmployeeEditEntry() {
                   name="addFacility"
                   value={editableFields.addFacility}
                   onChange={handleChange}
-                  className={`w-full p-2 border rounded h-10 ${
-                    errors.addFacility ? "border-red-500" : "border-gray-300"
-                  } bg-white`}
+                  className={`w-full p-2 border rounded h-10 ${errors.addFacility ? 'border-red-500' : 'border-gray-300'} bg-white`}
                 >
-                  <option value="" disabled>
-                    Select facility
-                  </option>
+                  <option value="" disabled>Select facility</option>
                   <option value="bangalore">Bangalore</option>
                   <option value="trivandrum">Trivandrum</option>
                   <option value="kochi">Kochi</option>
@@ -485,19 +273,17 @@ export default function EmployeeEditEntry() {
                   <p className="text-red-500 text-xs">{errors.addFacility}</p>
                 )}
               </div>
-
+              
               <div className="space-y-1">
                 <label className="block text-sm text-gray-700">
                   <span className="text-red-500">*</span>E-Signature
                 </label>
                 <div className="border border-gray-300 rounded p-2 bg-white">
                   <canvas
-                    ref={canvasRef}
+                    id="signatureCanvas"
                     width="300"
                     height="100"
-                    className={`w-full border rounded ${
-                      errors.eSignature ? "border-red-500" : "border-gray-300"
-                    }`}
+                    className={`w-full border rounded ${errors.eSignature ? 'border-red-500' : 'border-gray-300'}`}
                     onMouseDown={startDrawing}
                     onMouseMove={draw}
                     onMouseUp={stopDrawing}
@@ -516,26 +302,23 @@ export default function EmployeeEditEntry() {
                 )}
               </div>
             </div>
-
+            
+            {submitMessage && (
+              <div className={`mt-4 p-3 rounded ${submitMessage.includes("Error") ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                {submitMessage}
+              </div>
+            )}
+            
             <div className="flex justify-center gap-4 mt-6">
               <button
                 onClick={handleSubmit}
-                disabled={isSubmitting || !localStorage.getItem("currentVisitorId")}
+                disabled={isSubmitting}
                 className="bg-gray-800 text-white px-6 py-1.5 rounded-full hover:bg-blue-900 disabled:opacity-70 text-sm"
               >
                 {isSubmitting ? "Updating..." : "Update"}
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setEditableFields({
-                    outTime: "",
-                    authorizedSignatory: "",
-                    addFacility: "",
-                  });
-                  clearSignature();
-                  setErrors({});
-                }}
                 className="bg-gray-800 text-white px-6 py-1.5 rounded-full hover:bg-gray-900 text-sm"
               >
                 Cancel
@@ -545,5 +328,5 @@ export default function EmployeeEditEntry() {
         </div>
       </div>
     </div>
-  );
+  )
 }
