@@ -1,0 +1,20 @@
+package com.ust.project.onboarding.repository;
+
+import com.ust.project.onboarding.entity.Visitor;
+import com.ust.project.onboarding.enums.FacilityType;
+import com.ust.project.onboarding.enums.VisitorType;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Repository
+public interface VisitorRepository extends MongoRepository<Visitor, String> {
+    List<Visitor> findByVisitorType(VisitorType visitorType);
+    List<Visitor> findByFacility(FacilityType facility);
+    List<Visitor> findByDate(LocalDate date);
+    List<Visitor> findByVisitorName(String visitorName);
+    List<Visitor> findByVisitorId(String visitorId);
+    List<Visitor> findByPhoneNumber(String phoneNumber);
+}
