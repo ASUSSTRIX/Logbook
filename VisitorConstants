@@ -1,0 +1,29 @@
+package com.ust.project.onboarding.constants;
+
+public class VisitorConstants {
+
+    // API Endpoints
+    public static final String API_BASE_PATH = "/api";
+    public static final String VISITORS_PATH = "/visitors";
+
+    // Response Messages
+    public static final String VISITOR_CREATED = "Visitor created successfully";
+    public static final String VISITOR_UPDATED = "Visitor updated successfully";
+    public static final String VISITOR_DELETED = "Visitor deleted successfully";
+    public static final String VISITOR_NOT_FOUND = "Visitor not found with id: ";
+
+    // Validation Messages
+    public static final String VISITOR_TYPE_REQUIRED = "Visitor type is required";
+    public static final String VISITOR_NAME_REQUIRED = "Visitor name is required";
+    public static final String PURPOSE_REQUIRED = "Purpose of visit is required";
+    public static final String PHONE_REQUIRED = "Phone number is required";
+    public static final String PHONE_INVALID = "Phone number must be 10 digits";
+    public static final String EMAIL_INVALID = "Invalid email format";
+    public static final String DATE_REQUIRED = "Date is required";
+    public static final String TIME_REQUIRED = "Time is required";
+    public static final String FACILITY_REQUIRED = "Facility is required";
+
+    // Prevent instantiation
+    private VisitorConstants() {
+    }
+}
