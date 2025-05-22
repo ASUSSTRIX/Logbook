@@ -1,0 +1,7 @@
+package com.ust.project.onboarding.enums;
+
+public enum FacilityType {
+    BANGALORE,
+    TRIVANDRUM,
+    KOCHI
+}
