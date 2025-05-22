@@ -1,0 +1,6 @@
+package com.ust.project.onboarding.enums;
+
+public enum VisitorType {
+    EMPLOYEE,
+    VISITOR
+}
