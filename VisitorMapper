@@ -1,0 +1,75 @@
+package com.ust.project.onboarding.mapper;
+
+import com.ust.project.onboarding.dto.VisitorDTO;
+import com.ust.project.onboarding.entity.Visitor;
+import com.ust.project.onboarding.enums.FacilityType;
+import com.ust.project.onboarding.enums.VisitorType;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
+@Component
+public class VisitorMapper {
+
+    public Visitor toEntity(VisitorDTO dto) {
+        Visitor visitor = new Visitor();
+
+        // Map visitor type
+        if (dto.getVisitorType() != null) {
+            visitor.setVisitorType(VisitorType.valueOf(dto.getVisitorType().toUpperCase()));
+        }
+
+        visitor.setVisitorId(dto.getVisitorId());
+        visitor.setVisitorName(dto.getVisitorName());
+        visitor.setPurposeOfVisit(dto.getPurposeOfVisit());
+        visitor.setPhoneNumber(dto.getPhoneNumber());
+        visitor.setEmail(dto.getEmail());
+
+        // Parse date
+        if (dto.getDate() != null && !dto.getDate().isEmpty()) {
+            visitor.setDate(LocalDate.parse(dto.getDate()));
+        }
+
+        // Parse time
+        if (dto.getInTime() != null && !dto.getInTime().isEmpty()) {
+            visitor.setInTime(LocalTime.parse(dto.getInTime()));
+        }
+
+        // Map facility
+        if (dto.getAddFacility() != null) {
+            visitor.setFacility(FacilityType.valueOf(dto.getAddFacility().toUpperCase()));
+        }
+
+        return visitor;
+    }
+
+    public VisitorDTO toDto(Visitor visitor) {
+        VisitorDTO dto = new VisitorDTO();
+
+        if (visitor.getVisitorType() != null) {
+            dto.setVisitorType(visitor.getVisitorType().toString().toLowerCase());
+        }
+
+        dto.setVisitorId(visitor.getVisitorId());
+        dto.setVisitorName(visitor.getVisitorName());
+        dto.setPurposeOfVisit(visitor.getPurposeOfVisit());
+        dto.setPhoneNumber(visitor.getPhoneNumber());
+        dto.setEmail(visitor.getEmail());
+
+        if (visitor.getDate() != null) {
+            dto.setDate(visitor.getDate().toString());
+        }
+
+        if (visitor.getInTime() != null) {
+            dto.setInTime(visitor.getInTime().toString());
+        }
+
+        if (visitor.getFacility() != null) {
+            dto.setAddFacility(visitor.getFacility().toString().toLowerCase());
+        }
+
+        return dto;
+    }
+}
