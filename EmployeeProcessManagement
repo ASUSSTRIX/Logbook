@@ -1,8 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 
 export default function EmployeeProcessManagement() {
-  const navigate = useNavigate();
   const [formData, setFormData] = React.useState({
     visitorType: '',
     visitorId: '',
@@ -27,7 +25,6 @@ export default function EmployeeProcessManagement() {
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   };
-  
   const getCurrentTime = () => {
     const now = new Date();
     const hours = String(now.getHours()).padStart(2, '0');
@@ -129,17 +126,6 @@ export default function EmployeeProcessManagement() {
         
         if (response.ok && result.success) {
           setSubmitMessage('New entry created successfully!');
-          
-          // Store the visitor ID in localStorage for the edit page
-          if (result.data && result.data.id) {
-            localStorage.setItem('currentVisitorId', result.data.id);
-            
-            // Navigate to the edit page
-            setTimeout(() => {
-              navigate('/edit-employee');
-            }, 1000);
-          }
-          
           handleCancel();
         } else {
           setSubmitMessage(`Error: ${result.message || 'Failed to create entry'}`);
@@ -182,7 +168,6 @@ export default function EmployeeProcessManagement() {
             )}
             
             <div className="space-y-4">
-              {/* Form fields remain the same */}
               <div>
                 <label className="block text-sm font-medium text-slate-700">
                   <span className="text-red-500">*</span>Visitor Type
