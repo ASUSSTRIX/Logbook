@@ -1,0 +1,23 @@
+package com.ust.project.onboarding.service;
+
+import com.ust.project.onboarding.dto.VisitorDTO;
+import com.ust.project.onboarding.entity.Visitor;
+import com.ust.project.onboarding.enums.FacilityType;
+import com.ust.project.onboarding.enums.VisitorType;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+public interface VisitorService {
+    Visitor createVisitor(VisitorDTO visitorDTO);
+    List<Visitor> getAllVisitors();
+    Optional<Visitor> getVisitorById(String id);
+    Visitor updateVisitor(String id, VisitorDTO visitorDTO);
+    void deleteVisitor(String id);
+    List<Visitor> getVisitorsByType(VisitorType visitorType);
+    List<Visitor> getVisitorsByFacility(FacilityType facility);
+    List<Visitor> getVisitorsByDate(LocalDate date);
+    Visitor checkoutVisitor(String id, String outTime);
+
+}
