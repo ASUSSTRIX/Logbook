@@ -1,0 +1,12 @@
+package com.ust.project.onboarding.exceptions;
+
+public class VisitorNotFoundException extends RuntimeException {
+
+    public VisitorNotFoundException(String message) {
+        super(message);
+    }
+
+    public VisitorNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}
