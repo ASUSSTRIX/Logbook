@@ -1,0 +1,153 @@
+package com.ust.project.onboarding.entity;
+
+import com.ust.project.onboarding.enums.FacilityType;
+import com.ust.project.onboarding.enums.VisitorStatus;
+import com.ust.project.onboarding.enums.VisitorType;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+@Document(collection = "visitors")
+public class Visitor {
+
+    @Id
+    private String id;
+    private VisitorType visitorType;
+    private String visitorId;
+    private String visitorName;
+    private String purposeOfVisit;
+    private String phoneNumber;
+    private String email;
+    private LocalDate date;
+    private LocalTime inTime;
+    private LocalTime outTime;
+    private FacilityType facility;
+    private VisitorStatus status;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private String authorizedSignatory;
+    private String signatureFilePath;
+
+    // Constructors
+    public Visitor() {
+        this.status = VisitorStatus.ACTIVE;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    // Getters and Setters
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public VisitorType getVisitorType() {
+        return visitorType;
+    }
+
+    public void setVisitorType(VisitorType visitorType) {
+        this.visitorType = visitorType;
+    }
+
+    public String getVisitorId() {
+        return visitorId;
+    }
+
+    public void setVisitorId(String visitorId) {
+        this.visitorId = visitorId;
+    }
+
+    public String getVisitorName() {
+        return visitorName;
+    }
+
+    public void setVisitorName(String visitorName) {
+        this.visitorName = visitorName;
+    }
+
+    public String getPurposeOfVisit() {
+        return purposeOfVisit;
+    }
+
+    public void setPurposeOfVisit(String purposeOfVisit) {
+        this.purposeOfVisit = purposeOfVisit;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public LocalTime getInTime() {
+        return inTime;
+    }
+
+    public void setInTime(LocalTime inTime) {
+        this.inTime = inTime;
+    }
+
+    public LocalTime getOutTime() {
+        return outTime;
+    }
+
+    public void setOutTime(LocalTime outTime) {
+        this.outTime = outTime;
+    }
+
+    public FacilityType getFacility() {
+        return facility;
+    }
+
+    public void setFacility(FacilityType facility) {
+        this.facility = facility;
+    }
+
+    public VisitorStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(VisitorStatus status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+}
