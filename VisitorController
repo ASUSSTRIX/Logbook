@@ -1,0 +1,129 @@
+package com.ust.project.onboarding.controller;
+
+import com.ust.project.onboarding.dto.VisitorDTO;
+import com.ust.project.onboarding.entity.Visitor;
+import com.ust.project.onboarding.enums.FacilityType;
+import com.ust.project.onboarding.enums.VisitorType;
+import com.ust.project.onboarding.exceptions.VisitorNotFoundException;
+import com.ust.project.onboarding.model.ApiResponse;
+import com.ust.project.onboarding.service.VisitorService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import jakarta.validation.Valid;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:3000")
+public class VisitorController {
+
+    @Autowired
+    private VisitorService visitorService;
+
+    @PostMapping("/save")
+    @PreAuthorize("hasAnyRole('ADMINUSER', 'SUPERUSER')")
+    public ResponseEntity<ApiResponse<Visitor>> createVisitor(@Valid @RequestBody VisitorDTO visitorDTO) {
+        try {
+            Visitor createdVisitor = visitorService.createVisitor(visitorDTO);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ApiResponse<>(true, "Visitor created successfully", createdVisitor));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "Failed to create visitor: " + e.getMessage(), null));
+        }
+    }
+
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMINUSER', 'SUPERUSER')")
+    public ResponseEntity<ApiResponse<List<Visitor>>> getAllVisitors() {
+        List<Visitor> visitors = visitorService.getAllVisitors();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Visitor's retrieved successfully", visitors));
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMINUSER', 'SUPERUSER')")
+    public ResponseEntity<ApiResponse<Visitor>> getVisitorById(@PathVariable String id) {
+        try {
+            Visitor visitor = visitorService.getVisitorById(id)
+                    .orElseThrow(() -> new VisitorNotFoundException("Visitor not found with id: " + id));
+            return ResponseEntity.ok(new ApiResponse<>(true, "Visitor retrieved successfully", visitor));
+        } catch (VisitorNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(false, e.getMessage(), null));
+        }
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMINUSER', 'SUPERUSER')")
+    public ResponseEntity<ApiResponse<Visitor>> updateVisitor(@PathVariable String id, @Valid @RequestBody VisitorDTO visitorDTO) {
+        try {
+            Visitor updatedVisitor = visitorService.updateVisitor(id, visitorDTO);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Visitor updated successfully", updatedVisitor));
+        } catch (VisitorNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(false, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "Failed to update visitor: " + e.getMessage(), null));
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMINUSER', 'SUPERUSER')")
+    public ResponseEntity<ApiResponse<Void>> deleteVisitor(@PathVariable String id) {
+        try {
+            visitorService.deleteVisitor(id);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Visitor deleted successfully", null));
+        } catch (VisitorNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(false, e.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/type/{visitorType}")
+    @PreAuthorize("hasAnyRole('ADMINUSER', 'SUPERUSER')")
+    public ResponseEntity<ApiResponse<List<Visitor>>> getVisitorsByType(@PathVariable VisitorType visitorType) {
+        List<Visitor> visitors = visitorService.getVisitorsByType(visitorType);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Visitors retrieved successfully", visitors));
+    }
+
+    @GetMapping("/facility/{facility}")
+    @PreAuthorize("hasAnyRole('ADMINUSER', 'SUPERUSER')")
+    public ResponseEntity<ApiResponse<List<Visitor>>> getVisitorsByFacility(@PathVariable FacilityType facility) {
+        List<Visitor> visitors = visitorService.getVisitorsByFacility(facility);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Visitors retrieved successfully", visitors));
+    }
+
+    @GetMapping("/date/{date}")
+    @PreAuthorize("hasAnyRole('ADMINUSER', 'SUPERUSER')")
+    public ResponseEntity<ApiResponse<List<Visitor>>> getVisitorsByDate(
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        List<Visitor> visitors = visitorService.getVisitorsByDate(date);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Visitor's retrieved successfully", visitors));
+    }
+
+    @PatchMapping("/{id}/checkout")
+    @PreAuthorize("hasAnyRole('ADMINUSER', 'SUPERUSER')")
+    public ResponseEntity<ApiResponse<Visitor>> checkoutVisitor(
+            @PathVariable String id, @RequestParam String outTime) {
+        try {
+            Visitor visitor = visitorService.checkoutVisitor(id, outTime);
+            return ResponseEntity.ok(new ApiResponse<>(true, "Visitor checked out successfully", visitor));
+        } catch (VisitorNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(false, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(false, "Failed to checkout visitor: " + e.getMessage(), null));
+        }
+    }
+
+}
